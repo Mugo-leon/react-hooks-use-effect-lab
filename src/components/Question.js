@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function Question({ question, onAnswered }) {
   const [timeRemaining, setTimeRemaining] = useState(10);
 
-  // add useEffect code
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      // Decrease timeRemaining by 1 every 1 second
+      setTimeRemaining(prevTime => (prevTime > 0 ? prevTime - 1 : 0));
+    }, 1000);
+
+    // Cleanup function to clear the timeout when component unmounts or when the next question is shown
+    return () => clearTimeout(timerId);
+  }, [timeRemaining]); // Run effect whenever timeRemaining changes
 
   function handleAnswer(isCorrect) {
     setTimeRemaining(10);
@@ -11,6 +19,14 @@ function Question({ question, onAnswered }) {
   }
 
   const { id, prompt, answers, correctIndex } = question;
+
+  // Reset timeRemaining and call onAnswered when timeRemaining hits 0
+  useEffect(() => {
+    if (timeRemaining === 0) {
+      setTimeRemaining(10);
+      onAnswered(false);
+    }
+  }, [timeRemaining, onAnswered]);
 
   return (
     <>
